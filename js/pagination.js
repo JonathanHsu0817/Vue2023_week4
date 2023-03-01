@@ -2,7 +2,6 @@ export default{
   props:['pages','getProducts'],
   template:`
   <nav aria-label="Page navigation example">
-    {{pages}}
     <ul class="pagination">
 
       <li class="page-item"
@@ -29,6 +28,5 @@ export default{
     </ul>
   </nav>`,
   mounted(){
-
   }
 }

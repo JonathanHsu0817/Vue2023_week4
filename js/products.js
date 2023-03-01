@@ -115,5 +115,9 @@ app.component('product-modal',{
 	template: '#product-modal-template'
 })
 
+app.component('del-modal',{
+	props:['delProduct'],
+	template:'#del-modal'
+})
 
 app.mount("#app")
