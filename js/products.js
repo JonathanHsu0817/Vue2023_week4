@@ -1,12 +1,10 @@
 import { createApp } from "https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.45/vue.esm-browser.prod.min.js"
-
-// import config from "./config.js";
-// const {url,api_path} = config;
+import pagination from "./pagination.js"
 
 let productModal =``;
 let delModal = ``;
 
-const app = {
+const app = createApp({
 	data(){
 		return {
 			apiUrl: 'https://vue3-course-api.hexschool.io/v2',
@@ -16,6 +14,7 @@ const app = {
 			},
 			products:[],
 			isNew:false,
+			page:{}
 		}
 	},
 	methods:{
@@ -23,7 +22,7 @@ const app = {
 			this.getToken();
 			axios.post(`${this.apiUrl}/api/user/check`)
 				.then(res=>{
-					this.getProductsData();
+					this.getProducts();
 				})
 				.catch(err=>{
 					alert(err.response.data.message)
@@ -35,17 +34,19 @@ const app = {
 			axios.defaults.headers.common['Authorization'] = token;
 			// localStorage.getItem(token);//localStorage
 		},
-		getProductsData(){
+		getProducts(page=1){
 			this.getToken();
-			axios.get(`${this.apiUrl}/api/${this.api_path}/admin/products`)
+			axios.get(`${this.apiUrl}/api/${this.api_path}/admin/products/?page=${page}`)
 				.then(res=>{
 					this.products = res.data.products;
+					this.page = res.data.pagination;
+					console.log(res.data);
 				})
 				.catch(err=>{
 					alert(err.response.data.message);
 				})
 		},
-		updateProductsData(){
+		updateProducts(){
 			this.getToken();
 
 			let url = `${this.apiUrl}/api/${this.api_path}/admin/product`;
@@ -59,7 +60,7 @@ const app = {
 			axios[http](url, { data: this.temp }).then((response) => {
 				alert(response.data.message);
 				productModal.hide();
-				this.getProductsData();
+				this.getProducts();
 				}).catch((err) => {
 					alert(err.response.data.message);
 			})
@@ -71,11 +72,11 @@ const app = {
 			axios.delete(url)
 				.then((response) => {
 				alert(response.data.message);
-				delProductModal.hide();
-				this.getProductsData();
+				delModal.hide();
+				this.getProducts();
 				})
 				.catch((err) => {
-				alert(err.response.data.message);
+					alert(err.response.data.message);
 				})
 		},
 		openModal(isNew,item){
@@ -94,16 +95,25 @@ const app = {
 				delModal.show();
 			}
 		},
-		addImages(){
-			this.temp.imagesUrl=[];
-		}
+		createImages() {
+      this.temp.imagesUrl = [];
+      this.temp.imagesUrl.push('');
+    },
+	},
+	components:{
+		pagination
 	},
 	mounted(){
 		this.checkLogin()
 		productModal = new bootstrap.Modal(document.querySelector("#productModal"));
 		delModal = new bootstrap.Modal(document.querySelector("#delProductModal"));
 	}
-}
+})
 
-createApp(app)
-  .mount("#app")
+app.component('product-modal',{
+	props: ['temp','updateProducts'],
+	template: '#product-modal-template'
+})
+
+
+app.mount("#app")
